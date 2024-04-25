@@ -18,6 +18,7 @@ fn io_uring_cqe_index(ring: &io_uring, ptr: u32, mask: u32) -> u32 {
     (ptr & mask) << io_uring_cqe_shift(ring)
 }
 
+#[inline]
 pub fn io_uring_for_each_cqe<F>(ring: &mut io_uring, mut handle_cqe: F)
 where
     F: FnMut(&io_uring_cqe, &mut io_uring),
@@ -71,18 +72,18 @@ mod tests {
             }
 
             //loop {
-                //let mut sqe:  io_uring_sqe = io_uring_get_sq
-                let mut sqe = io_uring_get_sqe(&mut ring);
-                io_uring_prep_nop(sqe);
-                io_uring_sqe_set_data64(sqe, 1);
+            //let mut sqe:  io_uring_sqe = io_uring_get_sq
+            let mut sqe = io_uring_get_sqe(&mut ring);
+            io_uring_prep_nop(sqe);
+            io_uring_sqe_set_data64(sqe, 1);
 
-                io_uring_submit_and_wait(&mut ring, 1);
+            io_uring_submit_and_wait(&mut ring, 1);
 
-                io_uring_for_each_cqe(&mut ring, |cqe, ring |{
-                    let data = io_uring_cqe_get_data64(cqe);
-                    assert_eq!(data, 1);
-                })
-                
+            io_uring_for_each_cqe(&mut ring, |cqe, ring| {
+                let data = io_uring_cqe_get_data64(cqe);
+                assert_eq!(data, 1);
+            })
+
             //}
         }
     }
